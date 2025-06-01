@@ -1,10 +1,37 @@
 RewriteEngine On
 RewriteBase /
 
-# Handle client-side routing for React Router
+# Explicitly serve assets with correct MIME types
+# Don't redirect asset files to index.html
+RewriteCond %{REQUEST_URI} ^/assets/ [NC]
+RewriteRule ^.*$ - [L]
+
+# Serve CSS files with correct MIME type
+RewriteCond %{REQUEST_URI} \.css$ [NC]
+RewriteRule ^.*$ - [L]
+
+# Serve JS files with correct MIME type
+RewriteCond %{REQUEST_URI} \.js$ [NC]
+RewriteRule ^.*$ - [L]
+
+# Serve other static files without redirect
+RewriteCond %{REQUEST_URI} \.(png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$ [NC]
+RewriteRule ^.*$ - [L]
+
+# Handle client-side routing for React Router ONLY for non-file requests
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/assets/ [NC]
+RewriteCond %{REQUEST_URI} !\.(css|js|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$ [NC]
 RewriteRule . /index.html [L]
+
+# Force correct MIME types
+<IfModule mod_mime.c>
+    AddType text/css .css
+    AddType application/javascript .js
+    AddType application/json .json
+    AddType image/svg+xml .svg
+</IfModule>
 
 # Enable GZIP compression
 <IfModule mod_deflate.c>
